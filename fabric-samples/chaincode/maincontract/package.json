@@ -1,0 +1,17 @@
+{
+  "name": "main-chaincode",
+  "version": "1.0.0",
+  "description": "Main Chaincode",
+  "main": "index.js",
+  "engines": {
+    "node": ">=12",
+    "npm": ">=6.9"
+  },
+  "scripts": {
+    "start": "fabric-chaincode-node start"
+  },
+  "dependencies": {
+    "fabric-contract-api": "^2.0.0",
+    "fabric-shim": "^2.0.0"
+  }
+}
