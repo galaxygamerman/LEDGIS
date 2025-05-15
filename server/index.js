@@ -48,7 +48,7 @@ app.get('/getfile',async(req,res)=>{
   const rs=await subToFabric("getEvidence",[file])
   return res.status(200).json(JSON.parse(rs.result));}
   catch(err){
-    return res.status(404).json({success:false,msg:"Retrieval Failed"});
+    return res.status(404).json({success:false,msg:"Evidence Retrieval Failed."});
   } 
 })
 app.listen(port,()=>{
