@@ -18,7 +18,7 @@ async function subToFabric(functionName, args) {
       discovery: { enabled: true, asLocalhost: true } 
     });
     const network = await gateway.getNetwork('mychannel');
-    const contract = network.getContract('evidence');
+    const contract = network.getContract('maincontract');
     const result = await contract.submitTransaction(functionName, ...args);
     await gateway.disconnect();
     return { result: result.toString() };

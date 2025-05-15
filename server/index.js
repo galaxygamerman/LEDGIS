@@ -44,8 +44,12 @@ app.post('/upload', upload.single('evidence'), async(req,res)=>{
 });
 app.get('/getfile',async(req,res)=>{
   const file=req.query.fileID
+  try{
   const rs=await subToFabric("getEvidence",[file])
-  return res.status(200).json(JSON.parse(rs.result)); 
+  return res.status(200).json(JSON.parse(rs.result));}
+  catch(err){
+    return res.status(404).json({success:false,msg:"Retrieval Failed"});
+  } 
 })
 app.listen(port,()=>{
   console.log(`Server running on port ${port}`);
