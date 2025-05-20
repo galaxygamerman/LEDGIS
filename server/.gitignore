@@ -3,3 +3,7 @@ node_modules/
 wallet/
 chunks/*
 upload/*
+temp/*
+!chunks/.gitkeep
+!upload/.gitkeep
+!temp/.gitkeep

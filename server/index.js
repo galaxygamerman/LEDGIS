@@ -4,11 +4,12 @@ const multer = require('multer');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
-const hashFile = require('./utils/hash');
+const {hashFile,verifyHash} = require('./utils/hash');
 const {encryptFile} = require('./utils/encrypt');
-const chunkFile = require('./utils/chunk');
+const {chunkFile,reconFile} = require('./utils/chunk');
 const upload = multer({ dest: 'upload/' });
-const {subToFabric}=require('./controllers/subController')
+const {subToFabric}=require('./controllers/subController');
+const { buildFile } = require('./controllers/dloadController');
 const app = express();
 const port = process.env.PORT||8080;
 app.use(bodyParser.json());
@@ -42,11 +43,16 @@ app.post('/upload', upload.single('evidence'), async(req,res)=>{
         fs.unlinkSync(filePath);
     }
 });
+app.get("/",(req,res)=>{
+  res.send("THEMIS Server is up.....")
+})
 app.get('/getfile',async(req,res)=>{
   const file=req.query.fileID
   try{
   const rs=await subToFabric("getEvidence",[file])
-  return res.status(200).json(JSON.parse(rs.result));}
+  const meta=JSON.parse(rs.result)
+  const status=await buildFile(meta);
+  return res.status(200).json({file_decrypted:status[0],hash_verified: status[1],metadata: meta});}
   catch(err){
     return res.status(404).json({success:false,msg:"Evidence Retrieval Failed."});
   } 

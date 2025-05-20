@@ -21,5 +21,15 @@ async function chunkFile(filePath, chunkSizeMB, outputDir) {
         fileStream.on('error', reject);
     });
 }
+async function reconFile(chunkPaths, outputFilePath) {
+    const writeStream = fs.createWriteStream(outputFilePath);
 
-module.exports = chunkFile;
+    for (const chunkPath of chunkPaths) {
+        const chunkData = fs.readFileSync(chunkPath);
+        writeStream.write(chunkData);
+    }
+
+    writeStream.end();
+    console.log(`Chunks combined into: ${outputFilePath}`);
+}
+module.exports = {chunkFile,reconFile};
