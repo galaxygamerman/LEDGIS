@@ -4,6 +4,7 @@ const algorithm = 'aes-256-cbc';
 const key = crypto.randomBytes(32);
 const iv = crypto.randomBytes(16);
 const { pipeline } = require('stream/promises');
+
 function encryptFile(inputPath, outputPath) {
     const cipher = crypto.createCipheriv(algorithm, key, iv);
     const input = fs.createReadStream(inputPath);
@@ -19,11 +20,11 @@ async function decryptFile(inputPath, outputPath, keyHex, ivHex) {
     const key = Buffer.from(keyHex, 'hex');
     const iv = Buffer.from(ivHex, 'hex');
     const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
-    try{await pipeline(fs.createReadStream(inputPath),decipher,fs.createWriteStream(outputPath));}
-    catch(err){
+    try { await pipeline(fs.createReadStream(inputPath), decipher, fs.createWriteStream(outputPath)); }
+    catch (err) {
         console.log(err)
     }
 }
 
 
-module.exports = { encryptFile,decryptFile, key, iv };
+module.exports = { encryptFile, decryptFile, key, iv };
