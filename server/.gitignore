@@ -4,6 +4,7 @@ wallet/
 chunks/*
 upload/*
 download/*
+ipfs/*
 temp/*
 !chunks/.gitkeep
 !upload/.gitkeep

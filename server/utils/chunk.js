@@ -1,35 +1,36 @@
 const fs = require('fs');
 const path = require('path');
 const fse = require('fs-extra');
-
+const {create}=require("ipfs-http-client")
+const ipfs=create({ url: process.env.ipfsURL });
 async function chunkFile(fileHash,filePath, chunkSizeMB, outputDir) {
     const chunkSize = chunkSizeMB * 1024 * 1024;
     const fileStream = fs.createReadStream(filePath, { highWaterMark: chunkSize });
-    outputDir=path.join(outputDir,fileHash.substring(0,8)+Date.now())
-    await fse.ensureDir(path.join(outputDir));
-    let part = 0;
-    const chunkPaths = [];
-    return new Promise((resolve, reject) => {
-        fileStream.on('data', (chunk) => {
-            const chunkPath = path.join(outputDir, `chunk_${part}`);
-            fs.writeFileSync(chunkPath, chunk);
-            chunkPaths.push(chunkPath);
-            part++;
-        });
-
-        fileStream.on('end', () => resolve(chunkPaths));
-        fileStream.on('error', reject);
-    });
-}
-async function reconFile(chunkPaths, outputFilePath) {
-    const writeStream = fs.createWriteStream(outputFilePath);
-
-    for (const chunkPath of chunkPaths) {
-        const chunkData = fs.readFileSync(chunkPath);
-        writeStream.write(chunkData);
+    const chunkCIDs=[]
+    let part=0;
+    for await(const chunk of fileStream) {
+        const result=await ipfs.add(chunk,{pin:true,rawLeaves:true});
+        chunkCIDs.push({index: part,cid:result.cid.toString(),size:chunk.length});
+        part++;
     }
-
-    writeStream.end();
-    console.log(`Chunks combined into: ${outputFilePath}`);
+    console.log(`${part} chunks added to IPFS`)
+    console.log(chunkCIDs)
+    return chunkCIDs;
 }
-module.exports = {chunkFile,reconFile};
+async function reconFile(chunkCIDs, outputFilePath) {
+    const writeStream = fs.createWriteStream(outputFilePath);
+    chunkCIDs.sort((a,b)=>a.index-b.index)
+    for(const chunks of chunkCIDs){
+        const {cid}=chunks
+        for await(const chunk of ipfs.cat(cid)){
+            writeStream.write(chunk);
+        }
+    }
+    writeStream.end();
+    return new Promise((resolve)=>{
+    writeStream.on('finish',()=>{
+        console.log(`Chunks combined into: ${outputFilePath}`);
+        resolve(outputFilePath);
+    });
+})}
+module.exports={chunkFile,reconFile};

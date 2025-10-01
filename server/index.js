@@ -10,13 +10,15 @@ const {encryptFile} = require('./utils/encrypt');
 const {chunkFile,reconFile} = require('./utils/chunk');
 const upload = multer({ dest: 'upload/' });
 const {subToFabric}=require('./controllers/subController');
-const { buildFile } = require('./controllers/dloadController');
+const {buildFile,tKeys} = require('./controllers/dloadController');
 const {connectDB}=require("./controllers/dbController");
+const {cleanDir}=require("./utils/helpers")
 const authController = require('./controllers/authController');
 const app = express();
 const port = process.env.PORT||8080;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
+["download","upload","temp"].forEach(cleanDir);
 connectDB();
 app.post('/upload', upload.single('evidence'), async(req,res)=>{
     console.log(req.file)
@@ -46,6 +48,7 @@ app.post('/upload', upload.single('evidence'), async(req,res)=>{
         res.status(500).send('Error processing file');
     } finally {
         fs.unlinkSync(filePath);
+        fs.unlinkSync(encryptedPath);
     }
 });
 app.use("/auth",authController)
@@ -57,8 +60,24 @@ app.get('/getfile',async(req,res)=>{
   try{
   const rs=await subToFabric("getEvidence",[file])
   const meta=JSON.parse(rs.result)
+  // console.log(meta)
   const status=await buildFile(meta);
-  return res.status(200).json({file_decrypted:status[0],hash_verified: status[1],metadata: meta});}
+  return res.status(200).json({file_decrypted:status[0],hash_verified: status[1],metadata: meta,tempkey:status[2]});}
+  catch(err){
+    console.log(err)
+    return res.status(404).json({success:false,msg:"Evidence Retrieval Failed."});
+  } 
+})
+app.get('/download',async(req,res)=>{
+  const tkey=req.query.tempkey
+  try{
+    const filePath=tKeys.get(tkey)
+    if (!filePath||!fs.existsSync(filePath)){
+        return res.status(404).json({success: false,msg: "File not found or expired"});
+    }
+    const fileName = path.basename(filePath);
+    res.download(filePath,fileName,(err)=>{if(err)console.error(err);})
+  }
   catch(err){
     console.log(err)
     return res.status(404).json({success:false,msg:"Evidence Retrieval Failed."});
