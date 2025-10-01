@@ -1,13 +1,14 @@
 'use strict';
 const express = require('express');
 const multer = require('multer');
+const cors=require("cors")
 const bodyParser = require('body-parser');
 const fs = require('fs');
 require("dotenv").config()
 const path = require('path');
 const {hashFile,verifyHash} = require('./utils/hash');
 const {encryptFile} = require('./utils/encrypt');
-const {chunkFile,reconFile} = require('./utils/chunk');
+const {chunkFile,reconFile,ipfs} = require('./utils/chunk');
 const upload = multer({ dest: 'upload/' });
 const {subToFabric}=require('./controllers/subController');
 const {buildFile,tKeys} = require('./controllers/dloadController');
@@ -17,6 +18,7 @@ const authController = require('./controllers/authController');
 const app = express();
 const port = process.env.PORT||8080;
 app.use(bodyParser.json());
+app.use(cors({origin:"*"}))
 app.use(bodyParser.urlencoded({extended:true}));
 ["download","upload","temp"].forEach(cleanDir);
 connectDB();
@@ -81,6 +83,25 @@ app.get('/download',async(req,res)=>{
   catch(err){
     console.log(err)
     return res.status(404).json({success:false,msg:"Evidence Retrieval Failed."});
+  } 
+})
+app.get('/health',async(req,res)=>{
+  try{
+    const start=Date.now()
+    if(!ipfs) throw new Error("IPFS not Initialised");
+    const data=await ipfs.repo.stat();
+    const fixed={}
+    console.log(data)
+    for(let key in data){
+      if(key=="repoPath")continue
+      fixed[key]=((typeof data[key])=='bigint')?data[key].toString():data[key]
+    }
+    fixed.serverLoc=process.env.ipfsREG
+    return res.status(200).json({healthy:true,stats:fixed,latency:`${Date.now()-start}ms`})
+  }
+  catch(err){
+    console.log(err)
+    return res.status(404).json({healthy:false,msg:err});
   } 
 })
 app.listen(port,()=>{

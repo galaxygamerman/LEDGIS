@@ -33,4 +33,4 @@ async function reconFile(chunkCIDs, outputFilePath) {
         resolve(outputFilePath);
     });
 })}
-module.exports={chunkFile,reconFile};
+module.exports={chunkFile,reconFile,ipfs};
