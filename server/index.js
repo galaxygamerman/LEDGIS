@@ -3,6 +3,7 @@ const express = require('express');
 const multer = require('multer');
 const bodyParser = require('body-parser');
 const fs = require('fs');
+require("dotenv").config()
 const path = require('path');
 const {hashFile,verifyHash} = require('./utils/hash');
 const {encryptFile} = require('./utils/encrypt');
@@ -10,18 +11,22 @@ const {chunkFile,reconFile} = require('./utils/chunk');
 const upload = multer({ dest: 'upload/' });
 const {subToFabric}=require('./controllers/subController');
 const { buildFile } = require('./controllers/dloadController');
+const {connectDB}=require("./controllers/dbController");
+const authController = require('./controllers/authController');
 const app = express();
 const port = process.env.PORT||8080;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
+connectDB();
 app.post('/upload', upload.single('evidence'), async(req,res)=>{
+    console.log(req.file)
     const filePath = req.file.path;
     const originalName = req.file.originalname;
     const encryptedPath = path.join('upload', `enc_${originalName}`);
     try {
         const fileHash = await hashFile(filePath);
         const {key,iv} = await encryptFile(filePath, encryptedPath);
-        const chunkPaths = await chunkFile(encryptedPath, 1, 'chunks');
+        const chunkPaths = await chunkFile(fileHash,encryptedPath, 1, 'chunks');
         const metadata = {
             originalName,
             hash: fileHash,
@@ -43,8 +48,9 @@ app.post('/upload', upload.single('evidence'), async(req,res)=>{
         fs.unlinkSync(filePath);
     }
 });
+app.use("/auth",authController)
 app.get("/",(req,res)=>{
-  res.send("THEMIS Server is up.....")
+  res.send("LEDGIS Server is up.....")
 })
 app.get('/getfile',async(req,res)=>{
   const file=req.query.fileID
@@ -54,6 +60,7 @@ app.get('/getfile',async(req,res)=>{
   const status=await buildFile(meta);
   return res.status(200).json({file_decrypted:status[0],hash_verified: status[1],metadata: meta});}
   catch(err){
+    console.log(err)
     return res.status(404).json({success:false,msg:"Evidence Retrieval Failed."});
   } 
 })

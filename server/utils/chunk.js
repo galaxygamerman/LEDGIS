@@ -2,11 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const fse = require('fs-extra');
 
-async function chunkFile(filePath, chunkSizeMB, outputDir) {
+async function chunkFile(fileHash,filePath, chunkSizeMB, outputDir) {
     const chunkSize = chunkSizeMB * 1024 * 1024;
     const fileStream = fs.createReadStream(filePath, { highWaterMark: chunkSize });
-
-    await fse.ensureDir(outputDir);
+    outputDir=path.join(outputDir,fileHash.substring(0,8)+Date.now())
+    await fse.ensureDir(path.join(outputDir));
     let part = 0;
     const chunkPaths = [];
     return new Promise((resolve, reject) => {
