@@ -1,8 +1,8 @@
-import { FormEvent, useCallback, useMemo, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { Check, Download, KeyRound, Layers, Loader2, XCircle } from 'lucide-react';
 import { apiDownload, ApiError } from '../lib/api';
 import { triggerBrowserDownload } from '../lib/download';
-
+import { useNavigate } from 'react-router-dom';
 type PageStatus = 'idle' | 'loading' | 'success' | 'error';
 
 interface DownloadDetails {
@@ -18,7 +18,26 @@ export default function DownloadPage() {
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<string[]>([]);
   const [details, setDetails] = useState<DownloadDetails | null>(null);
-
+  const navigate=useNavigate();
+  const [pageload,setpageLoad]=useState(true);
+  useEffect(()=>{
+    const checkReg=async()=>{
+      const res=await fetch(`${import.meta.env.VITE_APIHOST}/auth/check_reg`,{
+        headers:{
+         'Authorization':`Bearer ${localStorage.getItem("ledgis_auth_token")}`
+        }
+      })
+      const data=await res.json();
+      if(data.success){
+        setpageLoad(false)
+      }
+      else {
+        console.log(data.success)
+        navigate("/login");
+      }
+    }
+    checkReg()
+  },[])
   const appendHistory = useCallback((message: string) => {
     setHistory((previous) => [message, ...previous].slice(0, 5));
   }, []);
@@ -70,8 +89,8 @@ export default function DownloadPage() {
     if (!details) return null;
     return formatBytes(details.size);
   }, [details]);
-
-  return (
+  if(pageload)return <></>
+  else return (
     <div className="space-y-10">
       <div className="space-y-2">
         <h1 className="text-3xl font-semibold tracking-tight text-neutral-50">Download File</h1>

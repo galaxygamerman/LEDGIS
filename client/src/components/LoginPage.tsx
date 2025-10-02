@@ -11,14 +11,6 @@ interface LoginPageProps {
 }
 
 export default function LoginPage({ onLogin, onBack }: LoginPageProps) {
-  const DEMO_CREDENTIALS = {
-    nodeId: 'NODE001',
-    username: 'demo-agent',
-    password: 'demo-password',
-    token:
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InBnczIiLCJpYXQiOjE3NTkzNDY0NTMsImV4cCI6MTc1OTM1MzY1M30.jUnA6ZNTutY2CQKxypZfVJuKgeaVmtoClJy0nkbqQDY',
-    message: 'User demo-agent has logged in',
-  } as const;
 
   const [nodeId, setNodeId] = useState('');
   const [username, setUsername] = useState('');

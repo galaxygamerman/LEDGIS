@@ -1,8 +1,8 @@
-import { useRef, useState } from 'react';
+import { useRef, useState,useEffect } from 'react';
 import { CheckCircle2, Loader2, Upload } from 'lucide-react';
 import { apiRequest, ApiError } from '../lib/api';
 import { Node } from '../types';
-
+import { useNavigate } from 'react-router-dom';
 interface UploadPageProps {
   currentNode: Node;
 }
@@ -29,7 +29,26 @@ export default function UploadPage({ currentNode }: UploadPageProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
-
+  const navigate=useNavigate();
+  const [pageload,setpageLoad]=useState(true);
+  useEffect(()=>{
+    const checkReg=async()=>{
+      const res=await fetch(`${import.meta.env.VITE_APIHOST}/auth/check_reg`,{
+        headers:{
+         'Authorization':`Bearer ${localStorage.getItem("ledgis_auth_token")}`
+        }
+      })
+      const data=await res.json();
+      if(data.success){
+        setpageLoad(false)
+      }
+      else {
+        console.log(data.success)
+        navigate("/login");
+      }
+    }
+    checkReg()
+  },[])
   const handleFileSelection = (file: File | null) => {
     setUploadError(null);
     setUploadResult(null);
@@ -85,8 +104,8 @@ export default function UploadPage({ currentNode }: UploadPageProps) {
       setIsUploading(false);
     }
   };
-
-  return (
+  if(pageload)return <></>
+  else return (
     <div className="relative space-y-10">
       <div className="space-y-2">
         <h1 className="text-3xl font-semibold tracking-tight text-neutral-50">Evidence Upload</h1>

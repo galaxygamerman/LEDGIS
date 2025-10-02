@@ -1,4 +1,5 @@
-import { FormEvent, useCallback, useMemo, useState } from 'react';
+import { FormEvent, useCallback, useMemo, useState,useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Clipboard,
   ClipboardCheck,
@@ -47,7 +48,26 @@ export default function FileValidityPage() {
   const [result, setResult] = useState<IntegrityResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copyState, setCopyState] = useState<CopyState>('idle');
-
+  const navigate=useNavigate();
+    const [pageload,setpageLoad]=useState(true);
+    useEffect(()=>{
+      const checkReg=async()=>{
+        const res=await fetch(`${import.meta.env.VITE_APIHOST}/auth/check_reg`,{
+          headers:{
+           'Authorization':`Bearer ${localStorage.getItem("ledgis_auth_token")}`
+          }
+        })
+        const data=await res.json();
+        if(data.success){
+          setpageLoad(false)
+        }
+        else {
+          console.log(data.success)
+          navigate("/login");
+        }
+      }
+      checkReg()
+    },[])
   const metadata = result?.metadata ?? null;
   const chunkList = metadata?.chunkList ?? [];
   const chunkCount = metadata?.chunksStored ?? chunkList.length;
@@ -118,8 +138,8 @@ export default function FileValidityPage() {
     : 'Manual review recommended';
 
   const badgeTone = integritySummary.decrypted && integritySummary.hashVerified ? 'success' : 'warn';
-
-  return (
+  if(pageload)return <></>
+  else return (
     <div className="space-y-10">
       <div className="space-y-2">
         <h1 className="text-3xl font-semibold tracking-tight text-neutral-50">File Integrity</h1>

@@ -14,7 +14,7 @@ const {subToFabric}=require('./controllers/subController');
 const {buildFile,tKeys} = require('./controllers/dloadController');
 const {connectDB}=require("./controllers/dbController");
 const {cleanDir}=require("./utils/helpers")
-const authController = require('./controllers/authController');
+const {authController,isLoggedIn} = require('./controllers/authController');
 const app = express();
 const port = process.env.PORT||8080;
 app.use(bodyParser.json());
@@ -22,7 +22,7 @@ app.use(cors({origin:"*"}))
 app.use(bodyParser.urlencoded({extended:true}));
 ["download","upload","temp"].forEach(cleanDir);
 connectDB();
-app.post('/upload', upload.single('evidence'), async(req,res)=>{
+app.post('/upload',isLoggedIn,upload.single('evidence'),async(req,res)=>{
     console.log(req.file)
     const filePath = req.file.path;
     const originalName = req.file.originalname;
@@ -57,7 +57,7 @@ app.use("/auth",authController)
 app.get("/",(req,res)=>{
   res.send("LEDGIS Server is up.....")
 })
-app.get('/getfile',async(req,res)=>{
+app.get('/getfile',isLoggedIn,async(req,res)=>{
   const file=req.query.fileID
   try{
   const rs=await subToFabric("getEvidence",[file])
@@ -70,7 +70,7 @@ app.get('/getfile',async(req,res)=>{
     return res.status(404).json({success:false,msg:"Evidence Retrieval Failed."});
   } 
 })
-app.get('/download',async(req,res)=>{
+app.get('/download',isLoggedIn,async(req,res)=>{
   const tkey=req.query.tempkey
   try{
     const filePath=tKeys.get(tkey)
@@ -85,7 +85,7 @@ app.get('/download',async(req,res)=>{
     return res.status(404).json({success:false,msg:"Evidence Retrieval Failed."});
   } 
 })
-app.get('/health',async(req,res)=>{
+app.get('/health',isLoggedIn,async(req,res)=>{
   try{
     const start=Date.now()
     if(!ipfs) throw new Error("IPFS not Initialised");
