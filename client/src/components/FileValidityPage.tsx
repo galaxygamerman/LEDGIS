@@ -52,19 +52,22 @@ export default function FileValidityPage() {
     const [pageload,setpageLoad]=useState(true);
     useEffect(()=>{
       const checkReg=async()=>{
-        const res=await fetch(`${import.meta.env.VITE_APIHOST}/auth/check_reg`,{
-          headers:{
-           'Authorization':`Bearer ${localStorage.getItem("ledgis_auth_token")}`
-          }
-        })
-        const data=await res.json();
-        if(data.success){
-          setpageLoad(false)
+       try{
+      const res=await fetch(`${import.meta.env.VITE_APIHOST}/auth/check_reg`,{
+        headers:{
+         'Authorization':`Bearer ${localStorage.getItem("ledgis_auth_token")}`
         }
-        else {
-          console.log(data.success)
-          navigate("/login");
-        }
+      })
+      const data=await res.json();
+      if(data.success){
+        setpageLoad(false)
+      }
+      else {
+        console.log(data.success)
+        navigate("/login");
+      }
+    }
+  catch(err){navigate("/login")}
       }
       checkReg()
     },[])

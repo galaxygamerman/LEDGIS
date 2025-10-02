@@ -33,6 +33,7 @@ export default function UploadPage({ currentNode }: UploadPageProps) {
   const [pageload,setpageLoad]=useState(true);
   useEffect(()=>{
     const checkReg=async()=>{
+      try{
       const res=await fetch(`${import.meta.env.VITE_APIHOST}/auth/check_reg`,{
         headers:{
          'Authorization':`Bearer ${localStorage.getItem("ledgis_auth_token")}`
@@ -46,6 +47,8 @@ export default function UploadPage({ currentNode }: UploadPageProps) {
         console.log(data.success)
         navigate("/login");
       }
+    }
+  catch(err){navigate("/login")}
     }
     checkReg()
   },[])

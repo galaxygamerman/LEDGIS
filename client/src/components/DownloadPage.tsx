@@ -22,6 +22,7 @@ export default function DownloadPage() {
   const [pageload,setpageLoad]=useState(true);
   useEffect(()=>{
     const checkReg=async()=>{
+      try{
       const res=await fetch(`${import.meta.env.VITE_APIHOST}/auth/check_reg`,{
         headers:{
          'Authorization':`Bearer ${localStorage.getItem("ledgis_auth_token")}`
@@ -36,6 +37,8 @@ export default function DownloadPage() {
         navigate("/login");
       }
     }
+  catch(err){navigate("/login")}
+  }
     checkReg()
   },[])
   const appendHistory = useCallback((message: string) => {
