@@ -96,7 +96,7 @@ app.get('/health',async(req,res)=>{
       if(key=="repoPath")continue
       fixed[key]=((typeof data[key])=='bigint')?data[key].toString():data[key]
     }
-    fixed.serverLoc=process.env.ipfsREG
+    fixed.serverLoc=[[process.env.ipfsREGx,process.env.ipfsREGy]]
     return res.status(200).json({healthy:true,stats:fixed,latency:`${Date.now()-start}ms`})
   }
   catch(err){

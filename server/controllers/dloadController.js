@@ -6,6 +6,7 @@ const {verifyHash} = require("../utils/hash");
 const fs= require('fs');
 const fse = require('fs-extra');
 const tKeys=new Map()
+let tempkey=""
 const buildFile=async(metadata)=>{
     const fname="enc_"+metadata.originalName
     const enc=metadata.encryption
@@ -22,7 +23,7 @@ const buildFile=async(metadata)=>{
     await decryptFile(encpath,downpath,enc.key,enc.iv)
     status[0]=true
     status[1]=await verifyHash(downpath,metadata.hash)
-    const tempkey=crypto.randomBytes(16).toString('hex');
+    tempkey=crypto.randomBytes(16).toString('hex');
     tKeys.set(tempkey,downpath)
     status[2]=tempkey
     return status

@@ -80,5 +80,7 @@ router.post('/login',async(req,res)=>{
     }
 })
 
-
+router.get('/check_reg',isLoggedIn,(req,res)=>{
+return res.status(200).json({success:true,message: "Logged in"})
+})
 module.exports=[router]
