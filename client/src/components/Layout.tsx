@@ -1,4 +1,4 @@
-import { Download, Globe2, Layers, LogOut, Menu, Search, Upload, X } from 'lucide-react';
+import { Download, Globe2, GlobeLock, Layers, LogOut, Menu, Search, Upload, Workflow, X } from 'lucide-react';
 import { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { Node } from '../types';
@@ -15,10 +15,10 @@ export default function Layout({ onLogout, currentNode }: LayoutProps) {
 
   const navItems = [
     { to: '/app/upload', label: 'Upload', icon: Upload, description: 'Add new evidence to the ledger' },
-    { to: '/app/check-integrity', label: 'Check Integrity', icon: Search, description: 'Verify chunk integrity' },
-    { to: '/app/download', label: 'Download File', icon: Download, description: 'Reconstruct notarised artefacts' },
-    { to: '/app/visualizer', label: 'Visualizer', icon: Layers, description: 'Inspect blockchain flow' },
-    { to: '/app/global-map', label: 'Global Map', icon: Globe2, description: 'Track shard distribution worldwide' },
+    { to: '/app/check-integrity', label: 'Check Integrity', icon: Search, description: 'Verify evidence integrity' },
+    { to: '/app/download', label: 'Download File', icon: Download, description: 'Retrieve reconstructed evidence' },
+    // { to: '/app/visualizer', label: 'Visualizer', icon: Layers, description: 'Inspect blockchain flow' },
+    { to: '/app/global-map', label: 'Global Map', icon: Globe2, description: 'Track IPFS node distribution worldwide' },
   ];
 
   return (
@@ -46,11 +46,12 @@ export default function Layout({ onLogout, currentNode }: LayoutProps) {
             <div className="space-y-4 rounded-2xl border border-neutral-800/60 bg-neutral-950/60 p-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-neutral-800/80 bg-neutral-900/80">
-                  <span className="text-sm font-semibold text-neutral-200">{currentNode.nodeId.slice(5, 7)}</span>
+                  {/* <span className="text-sm font-semibold text-neutral-200">{currentNode.nodeId.slice(5, 7)}</span> */}
+                  <GlobeLock />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-neutral-200">{currentNode.nodeId}</p>
-                  <p className="truncate text-xs text-neutral-500">{currentNode.name}</p>
+                  <p className="truncate text-sm font-medium text-neutral-200"><span className='text-neutral-500'>{currentNode.name}</span>@node{currentNode.nodeId}</p>
+                  {/* <p className="truncate text-xs text-neutral-500">{currentNode.name}@node{currentNode.nodeId}</p>  */}
                 </div>
               </div>
             </div>
@@ -110,12 +111,12 @@ export default function Layout({ onLogout, currentNode }: LayoutProps) {
               <Menu className="h-5 w-5" />
             </button>
             <div className="hidden lg:flex items-center gap-3 text-xs text-neutral-400">
-              <div className="flex items-center gap-2 rounded-lg border border-neutral-800/60 bg-neutral-900/60 px-3 py-2">
-                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                Network healthy
-              </div>
-              <div className="flex items-center gap-2 rounded-lg border border-neutral-800/60 bg-neutral-900/60 px-3 py-2">
-              </div>
+              {/* <div className="flex items-center gap-2 rounded-lg border border-neutral-800/60 bg-neutral-900/60 px-3 py-2">
+                <span className={`h-2 w-2 rounded-full ${(localStorage.getItem("net-health")=="healthy")?"bg-emerald-400":"bg-red-400"} animate-pulse`} />
+                legis system {localStorage.getItem("net-health")||"down"}
+              </div> */}
+              {/* <div className="flex items-center gap-2 rounded-lg border border-neutral-800/60 bg-neutral-900/60 px-3 py-2">
+              </div> */}
             </div>
             <div className="flex items-center gap-3 text-xs text-neutral-400 lg:hidden">
               <div className="flex items-center gap-2 rounded-lg border border-neutral-800/60 bg-neutral-900/60 px-3 py-2">

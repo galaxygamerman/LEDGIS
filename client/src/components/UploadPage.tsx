@@ -50,7 +50,22 @@ export default function UploadPage({ currentNode }: UploadPageProps) {
     }
   catch(err){navigate("/login")}
     }
+    const checkHealth=async()=>{
+      try{
+      const res=await fetch(`${import.meta.env.VITE_APIHOST}/health`,{
+        headers:{
+         'Authorization':`Bearer ${localStorage.getItem("ledgis_auth_token")}`
+        }
+      })
+      const data=await res.json();
+      if(data.healthy){
+        localStorage.setItem("net-health","healthy");
+      }
+    }
+  catch(err){}
+    }
     checkReg()
+    checkHealth()
   },[])
   const handleFileSelection = (file: File | null) => {
     setUploadError(null);
@@ -132,11 +147,11 @@ export default function UploadPage({ currentNode }: UploadPageProps) {
             type="text"
             value={fileName}
             onChange={(event) => setFileName(event.target.value)}
-            placeholder="Enter the file name"
+            placeholder="Original Filename will be preserved"
             className="w-full rounded-xl border border-neutral-800 bg-neutral-900/60 px-4 py-3 text-neutral-50 placeholder-neutral-500 focus:border-neutral-600 focus:outline-none focus:ring-2 focus:ring-neutral-700"
-            disabled={isUploading}
+            disabled={true}
           />
-          <p className="text-xs text-neutral-500">This name will be stored alongside the notarised evidence.</p>
+          <p className="text-xs text-neutral-500">This original filename will be stored alongside the notarised evidence.</p>
         </div>
 
         <div
