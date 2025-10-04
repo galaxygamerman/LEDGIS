@@ -50,7 +50,7 @@ export default function Layout({ onLogout, currentNode }: LayoutProps) {
                   <GlobeLock />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-neutral-200"><span className='text-neutral-500'>{currentNode.name}</span>@node{currentNode.nodeId}</p>
+                  <p className="truncate text-sm font-medium text-neutral-200"><span className='text-neutral-500'>{currentNode.name.toLowerCase()}</span>@node{currentNode.nodeId}</p>
                   {/* <p className="truncate text-xs text-neutral-500">{currentNode.name}@node{currentNode.nodeId}</p>  */}
                 </div>
               </div>
